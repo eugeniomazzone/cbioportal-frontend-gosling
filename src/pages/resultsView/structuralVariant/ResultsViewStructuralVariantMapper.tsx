@@ -30,6 +30,7 @@ import {
 } from 'shared/lib/AnnotationColumnUtils';
 import { MakeMobxView } from 'shared/components/MobxView';
 import ErrorMessage from 'shared/components/ErrorMessage';
+import SimpleExample from './chromoscope/exampleGosling';
 
 export interface IFusionMapperProps {
     store: ResultsViewStructuralVariantMapperStore;
@@ -78,6 +79,9 @@ export default class ResultsViewStructuralVariantMapper extends React.Component<
         render: () => {
             return (
                 <>
+                    <div>
+                        <SimpleExample />
+                    </div>
                     <ResultsViewStructuralVariantTable
                         dataStore={this.props.store.dataStore}
                         itemsLabelPlural={this.itemsLabelPlural}
