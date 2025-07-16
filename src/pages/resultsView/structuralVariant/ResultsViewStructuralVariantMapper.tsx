@@ -30,7 +30,8 @@ import {
 } from 'shared/lib/AnnotationColumnUtils';
 import { MakeMobxView } from 'shared/components/MobxView';
 import ErrorMessage from 'shared/components/ErrorMessage';
-import SimpleExample from './chromoscope/exampleGosling';
+//import SimpleExample from './chromoscope/exampleGosling';
+import GenomeViewer from './chromoscope2/GenomeViewer'
 
 export interface IFusionMapperProps {
     store: ResultsViewStructuralVariantMapperStore;
@@ -79,8 +80,9 @@ export default class ResultsViewStructuralVariantMapper extends React.Component<
         render: () => {
             return (
                 <>
-                    <div>
-                        <SimpleExample />
+                     <div style={{ padding: '2rem' }}>
+                    <h1>Genome Viewer (Gosling.js)</h1>
+                        <GenomeViewer />
                     </div>
                     <ResultsViewStructuralVariantTable
                         dataStore={this.props.store.dataStore}
