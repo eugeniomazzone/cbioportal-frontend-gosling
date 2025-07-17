@@ -2,7 +2,7 @@ import React from 'react';
 import { GoslingComponent, GoslingSpec } from 'gosling.js';
 import { StructuralVariant } from 'cbioportal-ts-api-client';
 
-interface Props {
+interface GslingSV {
   data: StructuralVariant[][];
 }
 
@@ -20,7 +20,7 @@ function transformToGosling(data: StructuralVariant[]): GoslingSVRecord[] {
   return data.map(sv => ({
     chr1: sv.site1Chromosome.startsWith('chr') ? sv.site1Chromosome : `chr${sv.site1Chromosome}`,
     start1: sv.site1Position,
-    end1: sv.site1Position + 1, // or a better estimate if available
+    end1: sv.site1Position + 1, // if it is needed
     chr2: sv.site2Chromosome.startsWith('chr') ? sv.site2Chromosome : `chr${sv.site2Chromosome}`,
     start2: sv.site2Position,
     end2: sv.site2Position + 1,
@@ -28,7 +28,7 @@ function transformToGosling(data: StructuralVariant[]): GoslingSVRecord[] {
   }));
 }
 
-const GenomeViewer: React.FC<Props> = ({ data }) => {
+const GenomeViewer: React.FC<GslingSV> = ({ data }) => {
 
   //console.log(data)
 
@@ -65,7 +65,7 @@ const GenomeViewer: React.FC<Props> = ({ data }) => {
             {
               "alignment": "overlay",
               "data": {
-                "url": "https://raw.githubusercontent.com/sehilyi/gemini-datasets/master/data/UCSC.HG38.Human.CytoBandIdeogram.csv",
+                "url": "https://raw.githubusercontent.com/sehilyi/gemini-datasets/master/data/UCSC.HG19.Human.CytoBandIdeogram.csv",
                 "type": "csv",
                 "chromosomeField": "Chromosome",
                 "genomicFields": ["chromStart", "chromEnd"]
@@ -179,7 +179,7 @@ const GenomeViewer: React.FC<Props> = ({ data }) => {
               "title": "Ideogram",
               "alignment": "overlay",
               "data": {
-                "url": "https://raw.githubusercontent.com/sehilyi/gemini-datasets/master/data/UCSC.HG38.Human.CytoBandIdeogram.csv",
+                "url": "https://raw.githubusercontent.com/sehilyi/gemini-datasets/master/data/UCSC.HG19.Human.CytoBandIdeogram.csv",
                 "type": "csv",
                 "chromosomeField": "Chromosome",
                 "genomicFields": ["chromStart", "chromEnd"]
@@ -288,7 +288,7 @@ const GenomeViewer: React.FC<Props> = ({ data }) => {
               "alignment": "overlay",
               "title": "hg38 | Genes",
               "data": {
-                "url": "https://server.gosling-lang.org/api/v1/tileset_info/?d=gene-annotation",
+                "url": "https://server.gosling-lang.org/api/v1/tileset_info/?d=gene-annotation-hg19",
                 "type": "beddb",
                 "genomicFields": [
                   {"index": 1, "name": "start"},
