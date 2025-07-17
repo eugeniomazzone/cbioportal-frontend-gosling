@@ -60,6 +60,7 @@ export default class ResultsViewStructuralVariantMapper extends React.Component<
     @computed get itemsLabelPlural(): string {
         const count = this.props.store.dataStore
             .duplicateStructuralVariantCountInMultipleSamples;
+            //console.log(this.props.store.dataStore.allData)
         const structuralVariantsLabel =
             count === 1 ? 'structural variant' : 'structural variants';
 
@@ -76,13 +77,12 @@ export default class ResultsViewStructuralVariantMapper extends React.Component<
             this.props.store.studyIdToStudy,
             this.props.store.molecularProfileIdToMolecularProfile,
         ],
-
+    
         render: () => {
             return (
                 <>
                      <div style={{ padding: '2rem' }}>
-                    <h1>Genome Viewer (Gosling.js)</h1>
-                        <GenomeViewer />
+                        <GenomeViewer data={this.props.store.dataStore.allData} />
                     </div>
                     <ResultsViewStructuralVariantTable
                         dataStore={this.props.store.dataStore}

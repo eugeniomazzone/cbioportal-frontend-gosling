@@ -1,9 +1,46 @@
 import React from 'react';
 import { GoslingComponent, GoslingSpec } from 'gosling.js';
+import { StructuralVariant } from 'cbioportal-ts-api-client';
 
-const GenomeViewer: React.FC = () => {
+interface Props {
+  data: StructuralVariant[][];
+}
+
+type GoslingSVRecord = {
+  chr1: string;
+  start1: number;
+  end1: number;
+  chr2: string;
+  start2: number;
+  end2: number;
+  svclass: string;
+};
+
+function transformToGosling(data: StructuralVariant[]): GoslingSVRecord[] {
+  return data.map(sv => ({
+    chr1: sv.site1Chromosome.startsWith('chr') ? sv.site1Chromosome : `chr${sv.site1Chromosome}`,
+    start1: sv.site1Position,
+    end1: sv.site1Position + 1, // or a better estimate if available
+    chr2: sv.site2Chromosome.startsWith('chr') ? sv.site2Chromosome : `chr${sv.site2Chromosome}`,
+    start2: sv.site2Position,
+    end2: sv.site2Position + 1,
+    svclass: sv.variantClass || 'NA'
+  }));
+}
+
+const GenomeViewer: React.FC<Props> = ({ data }) => {
+
+  //console.log(data)
+
+  const flatData: StructuralVariant[] = data.reduce((acc, val) => acc.concat(val), []);
+
+  //console.log(flatData)
+
+  const transformed = transformToGosling(flatData);
+
+  //console.log(transformed)
+
   const spec: GoslingSpec = {
-    title: 'Genome Overview',
     "layout": "linear",
     "arrangement": "vertical",
     "centerRadius": 0.5,
@@ -26,7 +63,6 @@ const GenomeViewer: React.FC = () => {
           "tracks": [
             // Cytobands - Circular
             {
-              "title": "Patient Overview (PD35930a)",
               "alignment": "overlay",
               "data": {
                 "url": "https://raw.githubusercontent.com/sehilyi/gemini-datasets/master/data/UCSC.HG38.Human.CytoBandIdeogram.csv",
@@ -75,12 +111,14 @@ const GenomeViewer: React.FC = () => {
               "width": 500,
               "height": 100
             },
-            // Structuyral Variant - Circular
+            // Structural Variant - Circular
             {
               "title": "Structural Variant",
               "data": {
-                "url": "https://s3.amazonaws.com/gosling-lang.org/data/cancer/rearrangement.PD35930a.csv",
-                "type": "csv",
+                //"url": "https://s3.amazonaws.com/gosling-lang.org/data/cancer/rearrangement.PD35930a.csv",
+                //"type": "csv",
+                type: 'json',
+                values: transformed,
                 "genomicFieldsToConvert": [
                   {
                     "chromosomeField": "chr1",
@@ -380,8 +418,10 @@ const GenomeViewer: React.FC = () => {
             {
               "title": "Structural Variant",
               "data": {
-                "url": "https://s3.amazonaws.com/gosling-lang.org/data/cancer/rearrangement.PD35930a.csv",
-                "type": "csv",
+                //"url": "https://s3.amazonaws.com/gosling-lang.org/data/cancer/rearrangement.PD35930a.csv",
+                //"type": "csv",
+                type: 'json',
+                values: transformed,
                 "genomicFieldsToConvert": [
                   {
                     "chromosomeField": "chr1",
@@ -443,8 +483,8 @@ const GenomeViewer: React.FC = () => {
                 {"field": "svclass", "type": "nominal"}
               ],
               "style": {"legendTitle": "SV Class", "linkStyle": "elliptical"},
-              "width": 1000,
-              "height": 200
+              "width": 1150,
+              "height": 300
             }
           ]
         }
