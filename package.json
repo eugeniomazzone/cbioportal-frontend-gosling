@@ -13,6 +13,7 @@
     "prettierFixCurrentChanges"
   ],
   "scripts": {
+    "postinstall": "node fix-gosling-imports.js",
     "start": "lerna run watch --parallel",
     "startSSL": "lerna run watchSSL --parallel",
     "watch": "./scripts/env_vars.sh && eval \"$(./scripts/env_vars.sh)\" && cross-env NODE_ENV=development webpack-dev-server --compress",
