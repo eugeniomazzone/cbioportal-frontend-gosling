@@ -94,6 +94,7 @@ var sassResourcesLoader = {
 };
 
 var config = {
+    target: 'web',
     stats: 'detailed',
     entry: [`babel-polyfill`, `${path.join(src, 'appBootstrapper.tsx')}`],
     output: {
@@ -109,12 +110,19 @@ var config = {
         minimizer: [
             new TerserPlugin({
                 parallel: false,
+                terserOptions: {
+                    ecma: 2020, // supports top-level await & dynamic import
+                    module: true,
+                    compress: false, // optional: turn off compress
+                    mangle: false, // optional: turn off mangling
+                },
             }),
         ],
     },
 
     resolve: {
         extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
+        fullySpecified: false, // lets Webpack handle ESM packages without full path specifiers
 
         alias: {
             css: join(src, 'styles'),
@@ -197,6 +205,24 @@ var config = {
     module: {
         rules: [
             {
+                test: /\.mjs$/,
+                include: /node_modules/,
+                type: 'javascript/auto',
+            },
+
+            // 2. Transpile gosling.js and pixi.js with Babel (dynamic import support)
+            {
+                test: /\.js$/,
+                include: modulePath => /gosling\.js|pixi\.js/.test(modulePath),
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env', '@babel/preset-react'],
+                        plugins: ['@babel/plugin-syntax-dynamic-import'],
+                    },
+                },
+            },
+            {
                 test: /\.tsx?$/,
                 use: [
                     {
@@ -206,8 +232,7 @@ var config = {
                                 '@babel/preset-env',
                                 '@babel/preset-react',
                             ],
-                            plugins: ['syntax-dynamic-import'],
-
+                            plugins: ['@babel/plugin-syntax-dynamic-import'],
                             cacheDirectory: babelCacheFolder,
                         },
                     },
@@ -220,6 +245,19 @@ var config = {
                     },
                 ],
                 exclude: /node_modules/,
+            },
+            // 4. Standard JS/JSX files (exclude node_modules except for legacy exceptions)
+            {
+                test: /\.(js|jsx)$/,
+                exclude: modulePath =>
+                    /node_modules/.test(modulePath) &&
+                    !/igv\.min/.test(modulePath),
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env', '@babel/preset-react'],
+                    },
+                },
             },
             {
                 test: /\.(js|jsx|babel)$/,
@@ -358,17 +396,13 @@ var config = {
             {
                 test: /\.js$/,
                 enforce: 'pre',
-                use: [
-                    {
-                        loader: 'source-map-loader',
-                    },
-                ],
+                use: ['source-map-loader'],
                 exclude: [/igv\.min/, /node_modules\/svg2pdf.js\//],
             },
 
+            // 8. Special imports for legacy libs
             {
                 test: require.resolve('3dmol'),
-                // 3Dmol expects "this" to be the global context
                 use: 'imports-loader?this=>window',
             },
         ],
@@ -594,3 +628,14 @@ if (isTest) {
 // End Testing
 
 module.exports = config;
+
+(module.exports.output = {
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[name].js',
+    chunkFilename: '[name].[chunkhash].js',
+    publicPath: '/',
+    module: true, // <-- important for ESM output
+}),
+    (module.exports.experiments = {
+        outputModule: true, // <-- enables ES module output
+    });
